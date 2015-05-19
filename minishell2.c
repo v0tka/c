@@ -48,13 +48,21 @@ int read_command(char *command, char **parameters) {
 }
 
 int main(int argc, char const *argv[]) {
+
+  if (argv[1]) {
+    printf("%s ",argv[1]);
+    fflush(stdout);
+  } else {
+    printf("$ ");
+  }
+
   char *command = (char*)malloc(sizeof(char) * (BUFF_SIZE));
   char **parameters = (char**)malloc(sizeof(char*) * 10);
   int status;
 
   while (TRUE) {
     if (fork() == 0) {
-      type_prompt();
+      // type_prompt();
 
       if (read_command(command,parameters)) {
         exit(EXIT_FAILURE);

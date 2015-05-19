@@ -30,10 +30,6 @@ void read_command(char*command,char**parameters){
 	int i = 0;
 	token = strtok(buff,separador);
 
-	if (!strcmp(token,"exit")) {
-		exit(EXIT_FAILURE);
-	}
-
 	while(token != NULL){
 		// Reservar memoria siguiente parámetro:
 		parameters[i] =
@@ -49,33 +45,36 @@ void read_command(char*command,char**parameters){
 	strcpy(command,parameters[0]);
 }
 
-int main(void){
+int main(int argc, char const *argv[]){
 	char *command = (char*)malloc(sizeof(char)*BUFF_SIZE);
-
 	char **parameters = (char**)malloc(sizeof(char*)*10);
-
 	int status;
+	const char *user_prompt = argv[1];
 
 	while(TRUE){
-		type_prompt();
+
+	  if (user_prompt) {
+	    printf("%s ",user_prompt);
+	    fflush(stdout);
+	  } else {
+			type_prompt();
+	  }
+
 		read_command(command,parameters);
+
+		if (!strcmp(command,"exit")) {
+			return 0;
+	 	}
 
 		if(fork()!=0){
 			// Código del proceso original:
-			//printf("proceso original esperando...");
 			waitpid(-1,&status,0);
-			if (status == EXIT_FAILURE) {
-				return 0;
-			}
-			//printf("proceso original listo.");
 		}else{
 			// Código del proceso clon:
-			//printf("proceso clon");
 			execvp(command,parameters);
 			perror("execvp");
 		}
 	}
-	/*type_prompt();
-	read_command(command,NULL);
-	printf("|%s|\n",command);*/
+
+	return 0;
 }
