@@ -21,21 +21,20 @@ void reader(FILE* stream) {
 
 int main(int argc, char const *argv[]) {
   srand(time(NULL));
-  pid_t pid;
+  int x,y;
+  pid_t pid_h2;
 
-
-  pid = fork();
-
-  if(pid == (pid_t)0) {
-    printf("Hijo\n");
-
+  if(!fork()) {
+    x = rand() % 100;
     int fds[2];
     pipe(fds);
 
+    pid_h2 = fork();
 
-    pid = fork();
+    if(!pid_h2) {
+      y = rand() % 100;
 
-    if(pid == (pid_t)0) {
+      printf("Soy el hijo 2 con PID=%d, mi numero aleatorio es %d y el del otro proceso es %d\n",getpid(),y,getppid());
 
       FILE* stream;
       close(fds[0]);
@@ -45,13 +44,14 @@ int main(int argc, char const *argv[]) {
 
       char *msg = (char*)malloc(sizeof(char)*1024);
 
-      sprintf(msg, "Soy el hijo %d con PID=%d, mi numero aleatorio es %d y el del otro proceso es %d",1,getpid(),rand() % 100,getppid());
+      sprintf(msg, "Soy el hijo %d con PID=%d, mi numero aleatorio es %d y el del otro proceso es %d",1,getpid(),x,getppid());
       writer(msg,stream);
-
       close(fds[1]);
+      exit(0);
 
     } else {
 
+      printf("Soy el hijo 1 con PID=%d, mi numero aleatorio es %d \n",getpid(),x);
 
       FILE* stream;
       close(fds[1]);
@@ -60,11 +60,6 @@ int main(int argc, char const *argv[]) {
       close(fds[0]);
 
     }
-
-  } else {
-
-
-
   }
 
   return 0;
